@@ -1,0 +1,95 @@
+# WordPress to GitHub Content Migration Tool - Configuration File
+
+# Crawler configuration
+crawler:
+  # Maximum number of pages to crawl
+  max_pages: 1000
+  # Whether to respect robots.txt directives
+  respect_robots: true
+  # Delay between requests in seconds
+  rate_limit: 0.05
+  # Additional URL patterns to exclude (regular expressions)
+  excluded_patterns:
+    - "/author/.*"
+    - "/tag/.*"
+    - "/category/.*"
+    - "/page/[0-9]+/"
+  # HTTP status code handling
+  status_codes:
+    # Log all HTTP status codes as they occur
+    log_all: true
+    # Show real-time console output of status codes
+    show_console: true
+    # Generate summary report of status codes
+    generate_report: true
+    # Automatically retry on these status codes
+    retry_codes:
+      - 429  # Too Many Requests
+      - 500  # Internal Server Error
+      - 502  # Bad Gateway
+      - 503  # Service Unavailable
+      - 504  # Gateway Timeout
+
+# Downloader configuration
+downloader:
+  # Maximum number of download retries
+  max_retries: 3
+  # Request timeout in seconds
+  timeout: 30
+  # Delay between download requests in seconds
+  request_delay: 0.01
+  # Concurrent downloads (set to 1 to disable)
+  concurrency: 1
+  # Performance monitoring
+  monitoring:
+    # Show download progress statistics
+    show_progress: true
+    # Log download speed
+    log_speed: true
+    # Check available bandwidth before downloading
+    check_bandwidth: false
+    # Track memory usage during downloads
+    track_memory: true
+  # Rate limit adaptation
+  rate_limiting:
+    # Automatically adjust rate limit based on server responses
+    adaptive: true
+    # Minimum delay between requests (seconds)
+    min_delay: 0.01
+    # Maximum delay between requests (seconds) 
+    max_delay: 5.0
+    # How quickly to increase delay after rate limit detection (multiplier)
+    backoff_factor: 2.0
+
+# HTML to Markdown converter configuration
+converter:
+  # CSS selectors to identify main content (in order of preference)
+  content_selectors:
+    - ".post-content"
+    - ".entry-content"
+    - "article"
+    - "#content"
+    - "main"
+  # Elements to remove from content
+  remove_selectors:
+    - ".sharedaddy"
+    - ".social-share"
+    - ".related-posts"
+    - ".jp-relatedposts"
+    - ".comments-area"
+    - "#comments"
+  # Image handling options
+  images:
+    # Whether to download images
+    download: true
+    # Maximum width to include (larger images will be skipped)
+    max_width: 1200
+    # Whether to attempt to fix image paths
+    fix_paths: true
+
+# Link validation configuration
+link_validator:
+  # Whether to fix internal links
+  fix_internal_links: true
+  # Whether to include external links in reports
+  report_external_links: false

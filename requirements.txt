@@ -1,0 +1,23 @@
+# WebSiteDownloader dependencies
+beautifulsoup4>=4.10.0
+requests>=2.27.1
+urllib3>=1.26.0
+tqdm>=4.63.1
+lxml>=4.8.0
+python-dotenv>=1.0.0
+# For content parsing
+markdown>=3.3.6
+html2text>=2020.1.16
+# For image processing
+Pillow>=9.0.1
+# For async operations
+aiohttp>=3.8.4
+aiofiles>=23.1.0
+# For logging
+rich>=13.3.0
+# For system monitoring
+psutil>=5.9.0
+# For testing
+pytest>=7.3.1
+pyyaml>=6.0
+validators>=0.18.2

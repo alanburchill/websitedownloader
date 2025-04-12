@@ -1,0 +1,68 @@
+# Keep top level folders but ignore their content
+/Sites/*
+!/Sites/.gitkeep
+
+/Logs/*
+!/Logs/.gitkeep
+
+# Exclude specific websites 
+/www_grouppolicy_biz/
+/www_grouppolicy_biz/**/*
+
+# Exclude output directory contents
+/output/
+/output/**/*
+
+# VS Code workspace files
+*.code-workspace
+
+# Hidden directories
+.*/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+.venv/
+venv/
+ENV/
+
+# IDE files
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.swp
+*.swo
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Local configuration files
+.env
+*.local.yaml
+local_config.yaml
+
+# Coverage reports
+.coverage
+htmlcov/
+coverage.xml
+
+# Temporary files
+*.bak
+*.tmp
+
+# Generated documentation
+docs/_build/
+docs/api/
+
