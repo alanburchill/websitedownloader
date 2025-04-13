@@ -8,6 +8,7 @@ import os
 import yaml
 import logging
 from typing import Dict, Any, Optional
+from dataclasses import dataclass
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -67,6 +68,22 @@ DEFAULT_CONFIG = {
     }
 }
 
+@dataclass
+class WebsiteConfig:
+    """Configuration class for website downloading."""
+    url: str
+    output_dir: str
+    max_pages: int = 1000
+    respect_robots: bool = True
+    rate_limit: float = 1.0
+    download_media: bool = True
+    save_html: bool = True
+    save_metadata: bool = True
+    use_relative_urls: bool = False  # Default to not converting URLs to relative
+    user_agent: str = "WebSiteDownloader/1.0"
+    timeout: int = 30
+    retry_count: int = 3
+    ignore_ssl_errors: bool = False
 
 def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
     """

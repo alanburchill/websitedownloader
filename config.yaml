@@ -8,6 +8,8 @@ crawler:
   respect_robots: true
   # Delay between requests in seconds
   rate_limit: 0.05
+  # Convert absolute URLs within the same domain to relative URLs
+  use_relative_urls: false
   # Additional URL patterns to exclude (regular expressions)
   excluded_patterns:
     - "/author/.*"

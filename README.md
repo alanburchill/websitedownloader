@@ -7,6 +7,7 @@ A powerful Python tool for crawling, downloading, and converting websites to Git
 - Crawl websites and discover URLs
 - Download HTML content and embedded media
 - Convert HTML to GitHub-flavored Markdown
+- Convert internal absolute URLs to relative URLs for offline viewing
 - Generate reports and logs for analysis
 - Preserve website structure in downloaded files
 - Consolidated logging system for easier analysis
@@ -97,6 +98,33 @@ python main.py --convert --html-dir ./Sites/www_example_com/HTML
 4. View the Markdown files in `./Sites/www_example_com/Markdown`.
 
 ## Advanced Configuration
+
+### URL Handling Options
+
+WebSiteDownloader provides advanced URL handling options to optimize offline viewing:
+
+- **Converting Absolute URLs to Relative**: When enabled, internal absolute URLs (e.g., https://www.example.com/page.html) are converted to relative URLs (/page.html), making offline browsing more seamless.
+
+To enable this feature, use one of these options:
+
+- Add `--use_relative_urls` flag on the command line
+- Set `use_relative_urls: true` in the crawler section of your config.yaml file
+
+```yaml
+# Crawler configuration
+crawler:
+  max_pages: 1000
+  respect_robots: true
+  rate_limit: 0.05
+  use_relative_urls: true  # Enable relative URL conversion
+  excluded_patterns:
+    - "/author/.*"
+    - "/tag/.*"
+  status_codes:
+    log_all: true
+    show_console: true
+    generate_report: true
+```
 
 ### Using a Configuration File
 
@@ -204,3 +232,7 @@ This project is licensed under the MIT License. See the LICENSE file for details
 ## Changelog
 
 For version history and updates, see [CHANGELOG.md](./CHANGELOG.md).
+
+
+## Real Example
+python main.py --config config.yaml --crawl --sitemap  https://www.grouppolicy.biz/sitemap-1.xml --download_all

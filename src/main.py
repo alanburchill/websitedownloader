@@ -153,7 +153,8 @@ def main():
         
         crawler = WebCrawler(
             max_pages=max_pages,
-            rate_limit=rate_limit
+            rate_limit=rate_limit,
+            use_relative_urls=config.get('use_relative_urls', True)  # Pass the new parameter
         )
         
         if args.sitemap:

@@ -5,7 +5,8 @@ Website crawler module for discovering URLs.
 import logging
 import time
 import re
-import xml.etree.ElementTree as ET
+# Replace standard ElementTree with lxml's implementation
+from lxml import etree as ET
 from urllib.parse import urljoin, urlparse
 import requests
 from bs4 import BeautifulSoup
@@ -13,7 +14,7 @@ from bs4 import BeautifulSoup
 class WebCrawler:
     """Class to crawl websites and discover URLs."""
     
-    def __init__(self, max_pages=1000, respect_robots=True, rate_limit=1.0):
+    def __init__(self, max_pages=1000, respect_robots=True, rate_limit=1.0, use_relative_urls=False):
         """
         Initialize the WebCrawler.
         
@@ -21,11 +22,33 @@ class WebCrawler:
             max_pages: Maximum number of pages to crawl
             respect_robots: Whether to respect robots.txt
             rate_limit: Number of seconds to wait between requests
+            use_relative_urls: Whether to convert internal absolute URLs to relative URLs
         """
         self.max_pages = max_pages
         self.respect_robots = respect_robots
         self.rate_limit = rate_limit
+        self.use_relative_urls = use_relative_urls
         self.logger = logging.getLogger(__name__)
+    
+    def _convert_to_relative_url(self, url, base_url):
+        """
+        Convert an absolute URL to a relative URL if it's within the same domain.
+        
+        Args:
+            url: The URL to convert
+            base_url: The base URL of the site being crawled
+            
+        Returns:
+            str: The relative URL if it's internal, or the original URL if external
+        """
+        parsed_url = urlparse(url)
+        base_parsed = urlparse(base_url)
+        
+        # Check if the URL is within the same domain
+        if parsed_url.netloc == base_parsed.netloc:
+            return parsed_url.path + (f"?{parsed_url.query}" if parsed_url.query else "") + (f"#{parsed_url.fragment}" if parsed_url.fragment else "")
+        else:
+            return url
     
     def crawl_sitemap(self, sitemap_url):
         """
@@ -65,7 +88,11 @@ class WebCrawler:
             # Process a sitemap index (collection of sitemaps)
             if root.tag.endswith('sitemapindex'):
                 sitemap_urls = []
-                for sitemap in root.findall('.//sm:sitemap/sm:loc', namespaces) or root.findall('.//sitemap/loc'):
+                sitemap_locs = root.findall('.//sm:sitemap/sm:loc', namespaces)
+                if not sitemap_locs:  # If empty, try without namespace
+                    sitemap_locs = root.findall('.//sitemap/loc')
+                
+                for sitemap in sitemap_locs:
                     if len(sitemap_urls) < self.max_pages:
                         sitemap_urls.append(sitemap.text)
                 
@@ -82,7 +109,9 @@ class WebCrawler:
             # Process a regular sitemap with URLs
             else:
                 # Look for URLs in the sitemap
-                url_elements = root.findall('.//sm:url/sm:loc', namespaces) or root.findall('.//url/loc')
+                url_elements = root.findall('.//sm:url/sm:loc', namespaces)
+                if not url_elements:  # If empty, try without namespace
+                    url_elements = root.findall('.//url/loc')
                 
                 for url_elem in url_elements:
                     if len(discovered_urls) >= self.max_pages:
@@ -123,17 +152,23 @@ class WebCrawler:
                     
                     # Add lastmod if available
                     if parent is not None:
-                        lastmod_elem = parent.find('./sm:lastmod', namespaces) or parent.find('./lastmod')
+                        lastmod_elem = parent.find('./sm:lastmod', namespaces)
+                        if lastmod_elem is None:
+                            lastmod_elem = parent.find('./lastmod')
                         if lastmod_elem is not None and lastmod_elem.text:
                             metadata['lastmod'] = lastmod_elem.text
                             
                         # Add priority if available
-                        priority_elem = parent.find('./sm:priority', namespaces) or parent.find('./priority')
+                        priority_elem = parent.find('./sm:priority', namespaces)
+                        if priority_elem is None:
+                            priority_elem = parent.find('./priority')
                         if priority_elem is not None and priority_elem.text:
                             metadata['priority'] = priority_elem.text
                             
                         # Add changefreq if available
-                        changefreq_elem = parent.find('./sm:changefreq', namespaces) or parent.find('./changefreq')
+                        changefreq_elem = parent.find('./sm:changefreq', namespaces)
+                        if changefreq_elem is None:
+                            changefreq_elem = parent.find('./changefreq')
                         if changefreq_elem is not None and changefreq_elem.text:
                             metadata['changefreq'] = changefreq_elem.text
                     
@@ -233,6 +268,10 @@ class WebCrawler:
                     if parsed.query:
                         # Strip query parameters
                         absolute_url = f"{parsed.scheme}://{parsed.netloc}{parsed.path}"
+                    
+                    # Convert to relative URL if enabled
+                    if self.use_relative_urls:
+                        absolute_url = self._convert_to_relative_url(absolute_url, base_url)
                     
                     # Add URL to queue if not visited
                     if absolute_url not in visited and absolute_url not in to_visit:
