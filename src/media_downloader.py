@@ -186,27 +186,16 @@ class MediaDownloader:
         
         # Check if we already have a file with this exact path
         if os.path.exists(file_path):
-            # Check if the file is identical by doing a HEAD request
-            if self._is_same_file(url, file_path):
-                if self.verbose:
-                    self.logger.info(f"Asset already exists (identical): {url} -> {file_path}")
-                # Store the URL in our tracking dictionary
-                self.downloaded_urls[url_key] = file_path
-                return {
-                    'url': url,
-                    'file_path': file_path,
-                    'status': 'exists'
-                }
-            else:
-                # Files are not identical, use a hash-based approach for renaming
-                name, ext = os.path.splitext(filename)
-                url_hash = hashlib.md5(url.encode()).hexdigest()[:8]
-                filename = f"{name}_{url_hash}{ext}"
-                
-                if rel_path:
-                    file_path = os.path.join(full_media_path, filename)
-                else:
-                    file_path = os.path.join(html_dir, filename)
+            # File already exists, skip downloading
+            if self.verbose:
+                self.logger.info(f"Asset already exists, skipping download: {url} -> {file_path}")
+            # Store the URL in our tracking dictionary
+            self.downloaded_urls[url_key] = file_path
+            return {
+                'url': url,
+                'file_path': file_path,
+                'status': 'skipped'
+            }
         
         retries = 0
         while retries <= self.max_retries:

@@ -374,13 +374,16 @@ class ContentDownloader:
                     filename = f"{domain_name}_index.html"
                     file_path = os.path.join(html_dir, filename)
                 
-                # Handle filename collisions by adding numeric suffix if file exists
-                counter = 1
-                base_path, ext = os.path.splitext(file_path)
-                original_file_path = file_path
-                while os.path.exists(file_path):
-                    file_path = f"{base_path}_{counter}{ext}"
-                    counter += 1
+                # Handle filename collisions by skipping instead of renaming
+                if os.path.exists(file_path):
+                    self.logger.info(f"File already exists, skipping download: {file_path}")
+                    return {
+                        'url': url,
+                        'file_path': file_path,
+                        'status_code': response.status_code,
+                        'status': 'skipped',
+                        'timestamp': datetime.now().isoformat()
+                    }
                 
                 # Save content based on content type
                 content = response.content
